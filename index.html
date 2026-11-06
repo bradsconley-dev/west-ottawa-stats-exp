@@ -137,7 +137,7 @@ body::before{content:'';position:fixed;top:0;right:0;bottom:0;left:0;background:
 .sb-lvl{display:inline-block;margin-left:4px;padding:0 4px;border-radius:4px;background:#ffffff;color:#1c1c1c;font-size:.72em;letter-spacing:.5px;vertical-align:1px}
 @media(max-width:600px){#teamBar{padding:4px;gap:4px;border-bottom-width:1px}#teamBar button{min-height:44px;font-size:17px;border-radius:8px}}
 
-/* ---- experimental live-chrome (v1.0.5-exp1) ---- */
+/* ---- experimental live-chrome (v1.0.5-exp2 · shot-unify) ---- */
 #expBanner{background:#ffffff;color:#1c1c1c;text-align:center;font-size:13px;font-weight:900;letter-spacing:.8px;padding:5px 8px;border-bottom:3px solid #ffffff}
 #expBanner small{display:block;font-weight:700;letter-spacing:.2px;opacity:.85;font-size:11px;margin-top:1px}
 #teamBar.hide{display:none!important}
@@ -769,7 +769,7 @@ const STATS=[['2PT Make','fg2m','g'],['2PT Miss','fg2x','r'],['3PT Make','fg3m',
 const load=(k,d)=>{try{return JSON.parse(LS.getItem(k))??d}catch(e){return d}};
 const BOOL_SET=['askAst','askZone','req5','ftStop','foulPause','askReb'];
 function normSettings(o){o=o&&typeof o==='object'&&!Array.isArray(o)?o:{};if(!(o.qLen>0))o.qLen=480;if(!(o.otLen>0))o.otLen=240;BOOL_SET.forEach(k=>{const v=o[k];o[k]=!(v===false||v==='false'||v===0||v==='0'||v==='off')});return o}
-const APP_VERSION='v1.0.5-exp1',APP_BUILD=APP_VERSION+' · 2026-11-06 · live-chrome';
+const APP_VERSION='v1.0.5-exp2',APP_BUILD=APP_VERSION+' · 2026-11-06 · shot-unify';
 // ---- v2.2 teams: Varsity / JV / Freshman. Each team has its own storage slot: wo_bb_exp_roster_<id>, wo_bb_exp_game_<id>, wo_bb_exp_past_<id>, wo_bb_exp_settings_<id>, wo_bb_exp_keeper_<id>;
 // wo_bb_exp_team = last selected team. Migration (once, idempotent): the old unsuffixed v2.1 keys are COPIED to the Varsity slot and verified; the old keys are left untouched as a backup and never written again.
 const TEAMS=[['varsity','Varsity'],['jv','JV'],['freshman','Freshman']],TEAM_IDS=TEAMS.map(t=>t[0]),TEAM_KEYS=['wo_bb_exp_roster','wo_bb_exp_game','wo_bb_exp_past','wo_bb_exp_settings','wo_bb_exp_keeper'],TEAM_SEL='wo_bb_exp_team',TEAM_MIG='wo_bb_exp_teams_migrated';
@@ -1061,12 +1061,12 @@ function p2Prims(M){const B=-5.25,H=41.75,R=19.75,P=[],arc=(cx,cy,r,a1,a2,n=48)=
  ln([[-3,-1.25],[3,-1.25]],3.2);ln([[0,-1.25],[0,-.75]]);ln(arc(0,0,.75,0,360,24),1.6*1.4,{c:SBC.goldD,closed:1});
  ln(arc(0,H,6,180,360));ln(arc(0,H,2,180,360));
  const mk=M.located.filter(s=>!s.m).concat(M.located.filter(s=>s.m));
- mk.forEach(s=>P.push(s.m?{k:'dot',x:s.spot.x,y:s.spot.y,r:4.75,fill:s.v===3?SBC.gold:SBC.mid,c:s.v===3?SBC.blue:SBC.ink,lw:s.v===3?1.1:.6,type:`fg${s.v}m`}:{k:'dot',x:s.spot.x,y:s.spot.y,r:4.5,fill:[255,255,255],c:s.v===3?SBC.goldD:SBC.mid,lw:1.8,type:`fg${s.v}x`}));
+ mk.forEach(s=>P.push(s.m?{k:'dot',x:s.spot.x,y:s.spot.y,r:4.75,fill:SBC.ink,c:SBC.ink,lw:.6,type:`fg${s.v}m`}:{k:'dot',x:s.spot.x,y:s.spot.y,r:4.75,fill:[255,255,255],c:SBC.ink,lw:1.8,type:`fg${s.v}x`}));
  M.labels.forEach(l=>P.push(Object.assign({k:'label'},l)));return P}
 // zone shading: tier color + opacity over the cream floor (hot green, warm gold, cold blue, grey washed = no attempts)
 var P2_ZFILL={hot:{c:[34,160,80],op:.30},warm:{c:[250,200,20],op:.36},cold:{c:[60,110,200],op:.24},none:{c:[200,204,212],op:.30}},P2_ZLINE=[112,124,146];
 function p2Swatch(t){const Z=P2_ZFILL[t];return Z.c.map((v,i)=>Math.round(v*Z.op+[255,253,245][i]*(1-Z.op)))}
-var P2_LEG=[['2PT make',{fill:SBC.mid,c:SBC.ink,lw:.6}],['2PT miss',{fill:[255,255,255],c:SBC.mid,lw:1.8}],['3PT make',{fill:SBC.gold,c:SBC.blue,lw:1.1}],['3PT miss',{fill:[255,255,255],c:SBC.goldD,lw:1.8}]];
+var P2_LEG=[['Make',{fill:SBC.ink,c:SBC.ink,lw:.6}],['Miss',{fill:[255,255,255],c:SBC.ink,lw:1.8}]];
 // v2.2.10: pages 2/3 (and player shot charts) header logos match page 1: the WO block straight on the navy (no white badge) on the left,
 // the West Ottawa WO logo on the right (page-1 proportions scaled to the 61.9 pt band). TEST DATA badge sits just left of the WO logo.
 function pdfBandLogos(doc,test,sub){
@@ -1108,7 +1108,7 @@ function pdfPage2(doc,g,half,O={}){const M=O.M||p2Model(g,half),test=O.test!=nul
    if(q.pct){doc.setFont('helvetica','normal');doc.setFontSize(7);doc.text(q.pct,cx,cy+6.9,{align:'center'})}labs[q.z]=q.text}});
  // legend + grading key + notes
  let ly=Y(41.75)+18;doc.setFont('helvetica','normal');doc.setFontSize(9);
- {const items=P2_LEG.map(([t,o])=>({t,o,w:8+2.7+doc.getTextWidth(t)})),gap=10.8,tot=items.reduce((a,b)=>a+b.w,0)+gap*3;let x=306-tot/2;
+ {const items=P2_LEG.map(([t,o])=>({t,o,w:8+2.7+doc.getTextWidth(t)})),gap=10.8,tot=items.reduce((a,b)=>a+b.w,0)+gap*Math.max(0,items.length-1);let x=306-tot/2;
   items.forEach(it=>{dot(x+4,ly-3.2,4,it.o);doc.setTextColor(...SBC.ink);doc.text(it.t,x+10.7,ly);x+=it.w+gap})}
  ly+=13;doc.setFontSize(7);{const parts=['hot','warm','cold','none'].map(t=>({t,txt:P2_TIER_TXT[t]})),pre='Zone shading / box border (makes/attempts, FG%): ',w=doc.getTextWidth(pre)+parts.reduce((a,p)=>a+11+doc.getTextWidth(p.txt)+9,0);let x=306-w/2;
   doc.setTextColor(...SBC.gray);doc.text(pre,x,ly);x+=doc.getTextWidth(pre);parts.forEach(p=>{const T=P2_TIER[p.t];doc.setFillColor(...p2Swatch(p.t));doc.setDrawColor(...T.ec);doc.setLineWidth(1.1);doc.roundedRect(x,ly-6,8,7,1.5,1.5,'FD');doc.setTextColor(...SBC.gray);doc.text(p.txt,x+11,ly);x+=11+doc.getTextWidth(p.txt)+9})}
@@ -2186,7 +2186,7 @@ function teamFoulsQtr(g,period){const fq=foulQ(period||g.period||1);let f=0;g.pl
 function fitBug(){['sbUs','sbThem'].forEach(id=>$(id).classList.toggle('d3',$(id).textContent.trim().length>2))} /* v2.2.1: 3-digit scores a bit smaller so they never get cut off */
 function renderBug(){if(!game)return;$('sbUs').textContent=pts(totals(game));$('sbThem').textContent=oppLatest(game)??0;$('sbOppName').textContent=game.opp;$('sbOppName').title=game.opp;$('sbOppName').classList.toggle('long',game.opp.length>14);$('sbOppName').classList.toggle('xlong',game.opp.length>24);fitBug();
  {const n=teamFoulsQtr(game),o=oppFoulTracked(game)?oppQtrFouls(game):0;$('sbFouls').innerHTML=`<span class="tf">TEAM </span><span class="nw">FOULS ${n}</span>`+(bonusOf(o)?`<span class="bon" title="West Ottawa in the bonus (2 shots) — ${esc(game.opp)} has ${o} team fouls this quarter">BONUS</span>`:'')}$('sbHalf').textContent=game.period<=4?'fouls this qtr':'fouls: Q4 + OT';renderTmo();renderOppLine()}
-function renderMini(){if(!game)return;const evs=game.log.slice(-4).reverse();
+function renderMini(){if(!game)return;const evs=game.log.slice(-3).reverse();
  $('miniList').innerHTML=evs.length?evs.map(e=>{const p=game.players.find(p=>p.id===e.id);return`<div class="mini"><span class="when">${e.q!=null?pLbl(e.q):'—'} ${e.t!=null?fmtClock(e.t):'—'}</span><span class="w">${e.tmo?esc(tmoTeam(game,e.team)):e.opp?esc(game.opp):p?`#${esc(p.num)} ${esc(p.name)}`:'(removed)'} — <b>${evLabel(game,e)}</b></span><button class="r" data-mrm="${e.eid}" title="Remove">✕</button></div>`}).join(''):'<div class="mini"><i>No plays yet</i></div>';
  $('miniList').querySelectorAll('[data-mrm]').forEach(b=>b.onclick=()=>{const e=game.log.find(x=>x.eid===b.dataset.mrm);if(!e)return;yesNo(`Remove ${evTxt(e)} (${e.q!=null?pLbl(e.q):'—'} ${e.t!=null?fmtClock(e.t):'—'})?`,{danger:1},()=>{if(!game)return;removeEv(game,e.eid);msg('Removed '+evTxt(e));save();render()})})}
 $('lineupGo').onclick=()=>msOpen();
