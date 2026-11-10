@@ -245,21 +245,7 @@ section.tabIn{animation:afTabIn .18s ease-out}
 body.afGame #scorebug{position:-webkit-sticky;position:sticky;top:var(--sat);z-index:6}
 body.afStuck::after{content:'';position:fixed;left:0;right:0;top:0;height:var(--sat);background:#0d0d0d;z-index:44;pointer-events:none}
 body.afStuck #scorebug{box-shadow:0 0 0 6px #0d0d0d,0 10px 16px 2px rgba(0,0,0,.75)}
-body.afStuck .sb-team{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n s" "f s" "t s";column-gap:6px;align-items:center;text-align:left;padding:2px 6px}
-body.afStuck .sb-team.opp{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"s n" "s f" "s t";text-align:right}
-body.afStuck .sb-name,body.afStuck .sb-name.long,body.afStuck .sb-name.xlong{grid-area:n;display:block;font-size:10px;line-height:1.15;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-line-clamp:unset;text-align:left}
-body.afStuck .sb-team.opp .sb-name{text-align:right}
-body.afStuck .sb-name .sb-lvl{display:none}
-body.afStuck .sb-score,body.afStuck .sb-score.d3{grid-area:s;font-size:32px;line-height:1}
-body.afStuck .sb-fouls{grid-area:f;font-size:10px;line-height:1.2;margin:0;white-space:nowrap}
-body.afStuck .sb-fouls .tf{display:none}
-body.afStuck .sb-tmo{grid-area:t;font-size:10px;line-height:1.2;margin:0;white-space:nowrap}
-body.afStuck .sb-tmo>.nw:first-child{display:none}
-body.afStuck .sb-tmo:not(:empty)::before{content:'T/O '}
-body.afStuck .sb-mid{padding-top:1px;padding-bottom:2px}
-body.afStuck #period{font-size:11px;line-height:1.15}
-body.afStuck #clock{font-size:28px;line-height:1.05}
-body.afStuck .sb-mid.ocShow #clock{font-size:22px}
+/* v1.0.5-exp10: no condensed layout — the pinned scoreboard is the same full-size scoreboard */
 
 /* ---- experimental sticky-fix (v1.0.5-exp9): Start/Stop row pins right under the pinned scoreboard, so it is never covered ---- */
 body.afGame #toolbar{position:-webkit-sticky;position:sticky;top:calc(var(--sat) + var(--sbH,85px) + 6px);z-index:5}
@@ -831,7 +817,7 @@ const STATS=[['2PT Make','fg2m','g'],['2PT Miss','fg2x','r'],['3PT Make','fg3m',
 const load=(k,d)=>{try{return JSON.parse(LS.getItem(k))??d}catch(e){return d}};
 const BOOL_SET=['askAst','askZone','req5','ftStop','foulPause','askReb'];
 function normSettings(o){o=o&&typeof o==='object'&&!Array.isArray(o)?o:{};if(!(o.qLen>0))o.qLen=480;if(!(o.otLen>0))o.otLen=240;BOOL_SET.forEach(k=>{const v=o[k];o[k]=!(v===false||v==='false'||v===0||v==='0'||v==='off')});return o}
-const APP_VERSION='v1.0.5-exp9',APP_BUILD=APP_VERSION+' · 2026-11-10 · sticky-fix';
+const APP_VERSION='v1.0.5-exp10',APP_BUILD=APP_VERSION+' · 2026-11-10 · no-condense';
 // ---- v2.2 teams: Varsity / JV / Freshman. Each team has its own storage slot: wo_bb_exp_roster_<id>, wo_bb_exp_game_<id>, wo_bb_exp_past_<id>, wo_bb_exp_settings_<id>, wo_bb_exp_keeper_<id>;
 // wo_bb_exp_team = last selected team. Migration (once, idempotent): the old unsuffixed v2.1 keys are COPIED to the Varsity slot and verified; the old keys are left untouched as a backup and never written again.
 const TEAMS=[['varsity','Varsity'],['jv','JV'],['freshman','Freshman']],TEAM_IDS=TEAMS.map(t=>t[0]),TEAM_KEYS=['wo_bb_exp_roster','wo_bb_exp_game','wo_bb_exp_past','wo_bb_exp_settings','wo_bb_exp_keeper'],TEAM_SEL='wo_bb_exp_team',TEAM_MIG='wo_bb_exp_teams_migrated';
@@ -2705,19 +2691,18 @@ window.addEventListener('online',function(){AF.check(true)});
 // launch: land on the right screen under the splash (so it is there when the splash fades), then check for an update once the splash is gone
 var x=g();AF.sync(!!x,running());AF.resume();
 setTimeout(function(){AF.check(true)},window.__AF_CHECK_DELAY!=null?window.__AF_CHECK_DELAY:5000);
-})();</script><script>/* v1.0.5-exp8 sticky-clock: detects when the pinned scoreboard is stuck and condenses it; layout below is held still. No new tap actions. */
+})();</script><script>/* v1.0.5-exp8 sticky-clock (exp10: no condense): detects when the pinned scoreboard is stuck, for the notch strip + shadow only. No new tap actions. */
 (function(){'use strict';var D=document,B=D.body,sb=D.getElementById('scorebug');if(!sb||!window.AF)return;
 var sen=D.createElement('div');sen.id='sbSentinel';sen.setAttribute('aria-hidden','true');sen.style.cssText='height:0;margin:0;padding:0;pointer-events:none';sb.parentNode.insertBefore(sen,sb);
 var stuck=false,raf=0;
 function check(){raf=0;var on=B.classList.contains('afGame')&&sb.offsetParent!==null,st=false;
  if(on){var top=parseFloat(getComputedStyle(sb).top)||0;st=sen.getBoundingClientRect().top<top-0.5}
  if(st===stuck)return;stuck=st;
- if(st){sb.style.marginBottom='';var full=sb.offsetHeight,base=parseFloat(getComputedStyle(sb).marginBottom)||0;B.classList.add('afStuck');sb.style.marginBottom=(base+full-sb.offsetHeight)+'px'} // keeps the cards under your finger from jumping
- else{B.classList.remove('afStuck');sb.style.marginBottom=''}}
+ B.classList.toggle('afStuck',st)} // v1.0.5-exp10: state only (notch strip + shadow); nothing resizes, so no spacer
 function soon(){if(!raf)raf=requestAnimationFrame(check)}
 AF.stickyCheck=check;AF.isStuck=function(){return stuck};
-window.addEventListener('scroll',soon,{passive:true});window.addEventListener('resize',function(){if(stuck){stuck=false;B.classList.remove('afStuck');sb.style.marginBottom=''}soon()});
-var s0=AF.sync;AF.sync=function(a,r){s0.apply(this,arguments);if(!a&&stuck){stuck=false;B.classList.remove('afStuck');sb.style.marginBottom=''}soon()};
+window.addEventListener('scroll',soon,{passive:true});window.addEventListener('resize',soon);
+var s0=AF.sync;AF.sync=function(a,r){s0.apply(this,arguments);if(!a&&stuck){stuck=false;B.classList.remove('afStuck')}soon()};
 D.addEventListener('visibilitychange',soon);check();
 })();</script><script>/* v1.0.5-exp9 sticky-fix: keeps the Start/Stop row's pin offset = the pinned scoreboard's live height; re-measures on scroll, resize, URL-bar (visualViewport) changes, tab switches and renders. */
 (function(){'use strict';var D=document,B=D.body,sb=D.getElementById('scorebug'),bar=D.getElementById('toolbar');if(!sb||!bar||!window.AF)return;var live=D.getElementById('live'),raf=0;
