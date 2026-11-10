@@ -260,6 +260,11 @@ body.afStuck .sb-mid{padding-top:1px;padding-bottom:2px}
 body.afStuck #period{font-size:11px;line-height:1.15}
 body.afStuck #clock{font-size:28px;line-height:1.05}
 body.afStuck .sb-mid.ocShow #clock{font-size:22px}
+
+/* ---- experimental sticky-fix (v1.0.5-exp9): Start/Stop row pins right under the pinned scoreboard, so it is never covered ---- */
+body.afGame #toolbar{position:-webkit-sticky;position:sticky;top:calc(var(--sat) + var(--sbH,85px) + 6px);z-index:5}
+body.afBarStuck #toolbar{background:#0d0d0d;box-shadow:0 0 0 6px #0d0d0d,0 10px 16px 2px rgba(0,0,0,.75)}
+body.afBarStuck #scorebug{box-shadow:0 0 0 6px #0d0d0d}
 </style><script>/* v2.2.2 Mac/iPad safety net — plain ES5 so it runs even on a browser too old for the main app script. Shows friendly banners; never changes app behavior. */
 (function(){var W=window,D=document,errs=[],shown=0;
 function bld(){try{return typeof APP_BUILD!=='undefined'?APP_BUILD:'v2.2.2 · 2026-10-28 · Mac/iPad safety'}catch(e){return 'v2.2.2 · 2026-10-28 · Mac/iPad safety'}}
@@ -826,7 +831,7 @@ const STATS=[['2PT Make','fg2m','g'],['2PT Miss','fg2x','r'],['3PT Make','fg3m',
 const load=(k,d)=>{try{return JSON.parse(LS.getItem(k))??d}catch(e){return d}};
 const BOOL_SET=['askAst','askZone','req5','ftStop','foulPause','askReb'];
 function normSettings(o){o=o&&typeof o==='object'&&!Array.isArray(o)?o:{};if(!(o.qLen>0))o.qLen=480;if(!(o.otLen>0))o.otLen=240;BOOL_SET.forEach(k=>{const v=o[k];o[k]=!(v===false||v==='false'||v===0||v==='0'||v==='off')});return o}
-const APP_VERSION='v1.0.5-exp8',APP_BUILD=APP_VERSION+' · 2026-11-10 · sticky-clock';
+const APP_VERSION='v1.0.5-exp9',APP_BUILD=APP_VERSION+' · 2026-11-10 · sticky-fix';
 // ---- v2.2 teams: Varsity / JV / Freshman. Each team has its own storage slot: wo_bb_exp_roster_<id>, wo_bb_exp_game_<id>, wo_bb_exp_past_<id>, wo_bb_exp_settings_<id>, wo_bb_exp_keeper_<id>;
 // wo_bb_exp_team = last selected team. Migration (once, idempotent): the old unsuffixed v2.1 keys are COPIED to the Varsity slot and verified; the old keys are left untouched as a backup and never written again.
 const TEAMS=[['varsity','Varsity'],['jv','JV'],['freshman','Freshman']],TEAM_IDS=TEAMS.map(t=>t[0]),TEAM_KEYS=['wo_bb_exp_roster','wo_bb_exp_game','wo_bb_exp_past','wo_bb_exp_settings','wo_bb_exp_keeper'],TEAM_SEL='wo_bb_exp_team',TEAM_MIG='wo_bb_exp_teams_migrated';
@@ -2714,4 +2719,19 @@ AF.stickyCheck=check;AF.isStuck=function(){return stuck};
 window.addEventListener('scroll',soon,{passive:true});window.addEventListener('resize',function(){if(stuck){stuck=false;B.classList.remove('afStuck');sb.style.marginBottom=''}soon()});
 var s0=AF.sync;AF.sync=function(a,r){s0.apply(this,arguments);if(!a&&stuck){stuck=false;B.classList.remove('afStuck');sb.style.marginBottom=''}soon()};
 D.addEventListener('visibilitychange',soon);check();
+})();</script><script>/* v1.0.5-exp9 sticky-fix: keeps the Start/Stop row's pin offset = the pinned scoreboard's live height; re-measures on scroll, resize, URL-bar (visualViewport) changes, tab switches and renders. */
+(function(){'use strict';var D=document,B=D.body,sb=D.getElementById('scorebug'),bar=D.getElementById('toolbar');if(!sb||!bar||!window.AF)return;var live=D.getElementById('live'),raf=0;
+function measure(){raf=0;try{if(AF.stickyCheck)AF.stickyCheck()}catch(e){}
+ var on=B.classList.contains('afGame')&&bar.offsetParent!==null;
+ var h=sb.offsetHeight;if(h>0)live.style.setProperty('--sbH',h+'px');
+ var st=false;if(on){var top=parseFloat(getComputedStyle(bar).top)||0;st=bar.getBoundingClientRect().top<=top+0.5&&B.classList.contains('afStuck')}
+ B.classList.toggle('afBarStuck',st)}
+function soon(){if(!raf)raf=requestAnimationFrame(measure)}
+AF.barMeasure=measure;
+window.addEventListener('scroll',soon,{passive:true});window.addEventListener('resize',soon);window.addEventListener('orientationchange',soon);
+if(window.visualViewport){visualViewport.addEventListener('resize',soon);visualViewport.addEventListener('scroll',soon)}
+D.addEventListener('visibilitychange',soon);window.addEventListener('pageshow',soon);
+Array.prototype.forEach.call(D.querySelectorAll('#tabBar button'),function(b){b.addEventListener('click',function(){measure();soon()})});
+var s0=AF.sync;AF.sync=function(){s0.apply(this,arguments);soon()};
+measure();
 })();</script></body></html>
