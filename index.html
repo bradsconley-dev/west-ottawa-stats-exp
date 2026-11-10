@@ -240,6 +240,17 @@ section.tabIn{animation:afTabIn .18s ease-out}
 #afUpdGo{flex:1 1 auto;text-align:left}#afUpdGo small{display:block;font-size:11px;font-weight:700;opacity:.7}
 #afUpdX{flex:0 0 46px;border-left:1px solid rgba(0,0,0,.18)!important;border-radius:0 14px 14px 0!important}
 @media (prefers-reduced-motion:reduce){button{transition:none}button:active:not(:disabled),button.afPress{transform:none}section.tabIn,.afSheet:not(.hide),.afSheet>*:first-child,.afFade:not(.hide){animation:none!important}#afUpdate,#afUpdate.show,header#tabBar .ti{transition:none}}
+
+/* ---- experimental sticky-clock (v1.0.5-exp8): scoreboard pinned under the notch during a live game ---- */
+body.afGame #scorebug{position:-webkit-sticky;position:sticky;top:var(--sat);z-index:6}
+body.afStuck::after{content:'';position:fixed;left:0;right:0;top:0;height:var(--sat);background:#0d0d0d;z-index:44;pointer-events:none}
+body.afStuck #scorebug{box-shadow:0 0 0 6px #0d0d0d,0 10px 16px 2px rgba(0,0,0,.75)}
+/* v1.0.5-exp10: no condensed layout — the pinned scoreboard is the same full-size scoreboard */
+
+/* ---- experimental sticky-fix (v1.0.5-exp9): Start/Stop row pins right under the pinned scoreboard, so it is never covered ---- */
+body.afGame #toolbar{position:-webkit-sticky;position:sticky;top:calc(var(--sat) + var(--sbH,85px) + 6px);z-index:5}
+body.afBarStuck #toolbar{background:#0d0d0d;box-shadow:0 0 0 6px #0d0d0d,0 10px 16px 2px rgba(0,0,0,.75)}
+body.afBarStuck #scorebug{box-shadow:0 0 0 6px #0d0d0d}
 </style><script>/* v2.2.2 Mac/iPad safety net — plain ES5 so it runs even on a browser too old for the main app script. Shows friendly banners; never changes app behavior. */
 (function(){var W=window,D=document,errs=[],shown=0;
 function bld(){try{return typeof APP_BUILD!=='undefined'?APP_BUILD:'v2.2.2 · 2026-10-28 · Mac/iPad safety'}catch(e){return 'v2.2.2 · 2026-10-28 · Mac/iPad safety'}}
@@ -806,7 +817,7 @@ const STATS=[['2PT Make','fg2m','g'],['2PT Miss','fg2x','r'],['3PT Make','fg3m',
 const load=(k,d)=>{try{return JSON.parse(LS.getItem(k))??d}catch(e){return d}};
 const BOOL_SET=['askAst','askZone','req5','ftStop','foulPause','askReb'];
 function normSettings(o){o=o&&typeof o==='object'&&!Array.isArray(o)?o:{};if(!(o.qLen>0))o.qLen=480;if(!(o.otLen>0))o.otLen=240;BOOL_SET.forEach(k=>{const v=o[k];o[k]=!(v===false||v==='false'||v===0||v==='0'||v==='off')});return o}
-const APP_VERSION='v1.0.5-exp7',APP_BUILD=APP_VERSION+' · 2026-11-10 · app-feel';
+const APP_VERSION='v1.0.5-exp10',APP_BUILD=APP_VERSION+' · 2026-11-10 · no-condense';
 // ---- v2.2 teams: Varsity / JV / Freshman. Each team has its own storage slot: wo_bb_exp_roster_<id>, wo_bb_exp_game_<id>, wo_bb_exp_past_<id>, wo_bb_exp_settings_<id>, wo_bb_exp_keeper_<id>;
 // wo_bb_exp_team = last selected team. Migration (once, idempotent): the old unsuffixed v2.1 keys are COPIED to the Varsity slot and verified; the old keys are left untouched as a backup and never written again.
 const TEAMS=[['varsity','Varsity'],['jv','JV'],['freshman','Freshman']],TEAM_IDS=TEAMS.map(t=>t[0]),TEAM_KEYS=['wo_bb_exp_roster','wo_bb_exp_game','wo_bb_exp_past','wo_bb_exp_settings','wo_bb_exp_keeper'],TEAM_SEL='wo_bb_exp_team',TEAM_MIG='wo_bb_exp_teams_migrated';
@@ -2680,4 +2691,32 @@ window.addEventListener('online',function(){AF.check(true)});
 // launch: land on the right screen under the splash (so it is there when the splash fades), then check for an update once the splash is gone
 var x=g();AF.sync(!!x,running());AF.resume();
 setTimeout(function(){AF.check(true)},window.__AF_CHECK_DELAY!=null?window.__AF_CHECK_DELAY:5000);
+})();</script><script>/* v1.0.5-exp8 sticky-clock (exp10: no condense): detects when the pinned scoreboard is stuck, for the notch strip + shadow only. No new tap actions. */
+(function(){'use strict';var D=document,B=D.body,sb=D.getElementById('scorebug');if(!sb||!window.AF)return;
+var sen=D.createElement('div');sen.id='sbSentinel';sen.setAttribute('aria-hidden','true');sen.style.cssText='height:0;margin:0;padding:0;pointer-events:none';sb.parentNode.insertBefore(sen,sb);
+var stuck=false,raf=0;
+function check(){raf=0;var on=B.classList.contains('afGame')&&sb.offsetParent!==null,st=false;
+ if(on){var top=parseFloat(getComputedStyle(sb).top)||0;st=sen.getBoundingClientRect().top<top-0.5}
+ if(st===stuck)return;stuck=st;
+ B.classList.toggle('afStuck',st)} // v1.0.5-exp10: state only (notch strip + shadow); nothing resizes, so no spacer
+function soon(){if(!raf)raf=requestAnimationFrame(check)}
+AF.stickyCheck=check;AF.isStuck=function(){return stuck};
+window.addEventListener('scroll',soon,{passive:true});window.addEventListener('resize',soon);
+var s0=AF.sync;AF.sync=function(a,r){s0.apply(this,arguments);if(!a&&stuck){stuck=false;B.classList.remove('afStuck')}soon()};
+D.addEventListener('visibilitychange',soon);check();
+})();</script><script>/* v1.0.5-exp9 sticky-fix: keeps the Start/Stop row's pin offset = the pinned scoreboard's live height; re-measures on scroll, resize, URL-bar (visualViewport) changes, tab switches and renders. */
+(function(){'use strict';var D=document,B=D.body,sb=D.getElementById('scorebug'),bar=D.getElementById('toolbar');if(!sb||!bar||!window.AF)return;var live=D.getElementById('live'),raf=0;
+function measure(){raf=0;try{if(AF.stickyCheck)AF.stickyCheck()}catch(e){}
+ var on=B.classList.contains('afGame')&&bar.offsetParent!==null;
+ var h=sb.offsetHeight;if(h>0)live.style.setProperty('--sbH',h+'px');
+ var st=false;if(on){var top=parseFloat(getComputedStyle(bar).top)||0;st=bar.getBoundingClientRect().top<=top+0.5&&B.classList.contains('afStuck')}
+ B.classList.toggle('afBarStuck',st)}
+function soon(){if(!raf)raf=requestAnimationFrame(measure)}
+AF.barMeasure=measure;
+window.addEventListener('scroll',soon,{passive:true});window.addEventListener('resize',soon);window.addEventListener('orientationchange',soon);
+if(window.visualViewport){visualViewport.addEventListener('resize',soon);visualViewport.addEventListener('scroll',soon)}
+D.addEventListener('visibilitychange',soon);window.addEventListener('pageshow',soon);
+Array.prototype.forEach.call(D.querySelectorAll('#tabBar button'),function(b){b.addEventListener('click',function(){measure();soon()})});
+var s0=AF.sync;AF.sync=function(){s0.apply(this,arguments);soon()};
+measure();
 })();</script></body></html>
