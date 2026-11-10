@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0d0d0d"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>West Ottawa Basketball Stat Tracker — Experimental</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,Arial,sans-serif;background:#0d0d0d;color:#fff}
@@ -203,6 +203,43 @@ header .ts{display:none}
 /* v2.2.9 (2026-10-29): gold full-width divider between "Who's coming out?" and "Who's going in?" in the subs pickers (same gold as the border). Hidden anywhere outside a .subsWin window. */
 .subsDiv{display:none}
 #ftModal.subsWin .subsDiv{display:block;height:0;border:0;border-top:3px solid var(--subs-edge);border-radius:2px;margin:12px 0 0;width:100%}
+
+/* ---- experimental app-feel (v1.0.5-exp7) ---- */
+:root{--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px);--sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px);--tabH:60px}
+body.afGame{--tabH:50px}
+html,body{overscroll-behavior:none;overscroll-behavior-y:none}
+html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+*{-webkit-tap-highlight-color:transparent}
+button,[role=button],[role=radio],[role=tab],label,header,#teamBar,#scorebug,#tabBar,#afUpdate,a{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+button{touch-action:manipulation;transition:transform .08s ease-out}
+button:active:not(:disabled),button.afPress{transform:scale(.96)}
+body{padding-bottom:calc(var(--tabH) + var(--sab) + 8px);padding-left:var(--sal);padding-right:var(--sar)}
+.brand{padding-top:calc(10px + var(--sat))}
+@media(max-width:600px){.brand{padding-top:calc(4px + var(--sat))}}
+header#tabBar{position:fixed;left:0;right:0;bottom:0;z-index:45;display:flex;flex-wrap:nowrap;gap:2px;overflow:visible;margin:0;padding:4px calc(4px + var(--sar)) calc(4px + var(--sab)) calc(4px + var(--sal));background:#141414;border-top:2px solid #ffffff;box-shadow:0 -4px 16px rgba(0,0,0,.55)}
+header#tabBar button{flex:1 1 0;min-width:0;min-height:calc(var(--tabH) - 8px);padding:2px 0;margin:0;border:0;border-radius:12px;background:transparent;color:#a8a8a8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:800;letter-spacing:.2px;box-shadow:none;line-height:1.1;cursor:pointer}
+header#tabBar .ti{display:flex;align-items:center;justify-content:center;width:46px;height:28px;border-radius:14px;transition:background-color .15s,color .15s}
+header#tabBar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+header#tabBar button.on{background:transparent;color:#ffffff;box-shadow:none}
+header#tabBar button.on .ti{background:#ffffff;color:#0d0d0d}
+body.afGame header#tabBar button{font-size:10px;gap:1px}
+body.afGame header#tabBar .ti{width:40px;height:23px}
+body.afGame header#tabBar svg{width:19px;height:19px}
+#toast{bottom:calc(var(--tabH) + var(--sab) + 12px)!important}
+section.tabIn{animation:afTabIn .18s ease-out}
+@keyframes afTabIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.afSheet:not(.hide){align-items:flex-end!important;justify-content:center!important;padding:12px 0 0!important;animation:afFadeIn .18s ease-out}
+.afSheet>*:first-child{border-bottom-width:0!important;border-radius:18px 18px 0 0!important;padding-bottom:calc(14px + var(--sab))!important;animation:afSheetUp .2s cubic-bezier(.2,.8,.25,1)}
+.afFade:not(.hide){animation:afFadeIn .18s ease-out}
+@keyframes afFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes afSheetUp{from{transform:translateY(100%)}to{transform:none}}
+#afUpdate{position:fixed;left:50%;bottom:calc(var(--tabH) + var(--sab) + 10px);z-index:46;display:flex;width:min(420px,calc(100% - 24px));background:#ffffff;color:#0d0d0d;border-radius:14px;box-shadow:0 6px 22px rgba(0,0,0,.6);opacity:0;visibility:hidden;pointer-events:none;transform:translate(-50%,14px);transition:opacity .2s,transform .2s,visibility 0s .2s}
+#afUpdate.show{opacity:1;visibility:visible;pointer-events:auto;transform:translate(-50%,0);transition:opacity .2s,transform .2s}
+#afUpdate button{min-height:46px;background:transparent;color:#0d0d0d;border:0;border-radius:14px;font-size:15px;font-weight:900;padding:8px 12px;box-shadow:none}
+#afUpdGo{flex:1 1 auto;text-align:left}#afUpdGo small{display:block;font-size:11px;font-weight:700;opacity:.7}
+#afUpdX{flex:0 0 46px;border-left:1px solid rgba(0,0,0,.18)!important;border-radius:0 14px 14px 0!important}
+@media (prefers-reduced-motion:reduce){button{transition:none}button:active:not(:disabled),button.afPress{transform:none}section.tabIn,.afSheet:not(.hide),.afSheet>*:first-child,.afFade:not(.hide){animation:none!important}#afUpdate,#afUpdate.show,header#tabBar .ti{transition:none}}
 </style><script>/* v2.2.2 Mac/iPad safety net — plain ES5 so it runs even on a browser too old for the main app script. Shows friendly banners; never changes app behavior. */
 (function(){var W=window,D=document,errs=[],shown=0;
 function bld(){try{return typeof APP_BUILD!=='undefined'?APP_BUILD:'v2.2.2 · 2026-10-28 · Mac/iPad safety'}catch(e){return 'v2.2.2 · 2026-10-28 · Mac/iPad safety'}}
@@ -269,7 +306,7 @@ try{var s=real(),pk='__wo_bb_exp_probe__';s.setItem(pk,'1');if(s.getItem(pk)!=='
 <div class="brand">🏀 WEST OTTAWA <span id="brandTeam">VARSITY</span> BASKETBALL 🏀</div>
 <div id="expBanner" role="status">EXPERIMENTAL · live-chrome<small>Separate from the live West Ottawa app · storage: wo_bb_exp_</small></div>
 <div id="teamBar" role="radiogroup" aria-label="Team (each team keeps its own roster, games, season and settings)"><button data-team="varsity" role="radio">Varsity</button><button data-team="jv" role="radio">JV</button><button data-team="freshman" role="radio">Freshman</button></div>
-<header><button data-tab="game" class="on">Game</button><button data-tab="roster">Roster</button><button data-tab="box" aria-label="Box Score"><span class="tl">Box Score</span><span class="ts">Box</span></button><button data-tab="past" aria-label="Past Games"><span class="tl">Past Games</span><span class="ts">Past</span></button><button data-tab="pbp" aria-label="Play-by-Play"><span class="tl">Play-by-Play</span><span class="ts">Plays</span></button><button data-tab="season">Season</button></header>
+<header id="tabBar" role="tablist" aria-label="Screens"><button data-tab="game" role="tab" aria-label="Game" aria-selected="true" class="on"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3v18M5.7 5.7c3.4 3.2 3.4 9.4 0 12.6M18.3 5.7c-3.4 3.2-3.4 9.4 0 12.6"/></svg></span><span class="tbl">Game</span></button><button data-tab="roster" role="tab" aria-label="Roster" aria-selected="false"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6"/><circle cx="17" cy="9" r="2.4"/><path d="M16.2 13.7c2.7.2 4.8 2.3 4.8 5"/></svg></span><span class="tbl">Roster</span></button><button data-tab="box" role="tab" aria-label="Box Score" aria-selected="false"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M3 14.5h18M9 4v16"/></svg></span><span class="tbl">Box</span></button><button data-tab="past" role="tab" aria-label="Past Games" aria-selected="false"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3 4.5v4h4"/><path d="M12 7.5V12l3 2"/></svg></span><span class="tbl">Past</span></button><button data-tab="pbp" role="tab" aria-label="Play-by-Play" aria-selected="false"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3"/></svg></span><span class="tbl">Plays</span></button><button data-tab="season" role="tab" aria-label="Season" aria-selected="false"><span class="ti"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M11 20V5M17 20v-7M3 20h18"/></svg></span><span class="tbl">Season</span></button></header>
 <section id="roster" class="hide"><h2>Roster</h2>
 <input id="rNum" placeholder="#" style="width:70px" inputmode="numeric"><input id="rName" placeholder="Player name"><input id="rClass" placeholder="Class (Sr/Jr…)" list="classList" style="width:150px"><datalist id="classList"><option value="Sr"><option value="Jr"><option value="So"><option value="Fr"></datalist><input id="rPos" placeholder="Position (opt.)" style="width:150px"><button id="rAdd" class="g">Add / Save</button>
 <div style="margin:6px 0"><button id="rImport" class="b">📥 Import Roster</button><input type="file" id="rImportFile" accept=".json,.csv,application/json,text/csv,text/plain" class="hide"> <small style="opacity:.8">NFHS roster file (.json), CSV (jersey,name,class,pos) or a tracker backup</small></div>
@@ -769,7 +806,7 @@ const STATS=[['2PT Make','fg2m','g'],['2PT Miss','fg2x','r'],['3PT Make','fg3m',
 const load=(k,d)=>{try{return JSON.parse(LS.getItem(k))??d}catch(e){return d}};
 const BOOL_SET=['askAst','askZone','req5','ftStop','foulPause','askReb'];
 function normSettings(o){o=o&&typeof o==='object'&&!Array.isArray(o)?o:{};if(!(o.qLen>0))o.qLen=480;if(!(o.otLen>0))o.otLen=240;BOOL_SET.forEach(k=>{const v=o[k];o[k]=!(v===false||v==='false'||v===0||v==='0'||v==='off')});return o}
-const APP_VERSION='v1.0.5-exp6',APP_BUILD=APP_VERSION+' · 2026-11-06 · line-weight';
+const APP_VERSION='v1.0.5-exp7',APP_BUILD=APP_VERSION+' · 2026-11-10 · app-feel';
 // ---- v2.2 teams: Varsity / JV / Freshman. Each team has its own storage slot: wo_bb_exp_roster_<id>, wo_bb_exp_game_<id>, wo_bb_exp_past_<id>, wo_bb_exp_settings_<id>, wo_bb_exp_keeper_<id>;
 // wo_bb_exp_team = last selected team. Migration (once, idempotent): the old unsuffixed v2.1 keys are COPIED to the Varsity slot and verified; the old keys are left untouched as a backup and never written again.
 const TEAMS=[['varsity','Varsity'],['jv','JV'],['freshman','Freshman']],TEAM_IDS=TEAMS.map(t=>t[0]),TEAM_KEYS=['wo_bb_exp_roster','wo_bb_exp_game','wo_bb_exp_past','wo_bb_exp_settings','wo_bb_exp_keeper'],TEAM_SEL='wo_bb_exp_team',TEAM_MIG='wo_bb_exp_teams_migrated';
@@ -2202,6 +2239,7 @@ function updateLiveChrome(){const active=!!game,run=!!(game&&game.running);
   const mode=$('mode');if(mode)mode.classList.toggle('hide',!active||run);
   const bar=$('toolbar');if(bar)bar.classList.toggle('liveRun',active&&run);
   // clockBtn / undo / toolsBtn stay visible always during live game
+  if(window.AF&&AF.sync)AF.sync(active,run);
 }
 function render(){renderTeam();recheckFoulBanner();renderSeason();renderPbp();renderMini();renderRoster();renderPast();renderBox();$('newGame').classList.toggle('hide',!!game);$('live').classList.toggle('hide',!game);
  if(game){$('title').textContent=`vs ${game.opp} — ${fmtDate(game.date)}${game.test?' (TEST)':''}`;{const st=stopIfShort();if(st!==false)alertMsg(`⏸ Clock stopped — only ${st} on court`)}renderBug();{const n=onCourtN(),oc=$('onCourt');oc.textContent=`ON COURT ${n}/5`;oc.classList.toggle('ok',n===5);oc.hidden=n===5;oc.parentNode.classList.toggle('ocShow',n!==5);oc.title=n===5?'5 on court':need5()?'Need 5 on court to run the clock':'Shorthanded allowed (setting)'}setClockFace(fmtClock(game.remain));$('period').textContent=pLbl(game.period);renderPerBtns();$('htBtn').classList.toggle('hide',!(game.period>=3||(game.period===2&&game.remain<=0)));$('htSbBtn').classList.toggle('hide',!(game.period>=3||(game.period===2&&game.remain<=0)));$('clockBtn').querySelector('.ci').textContent=game.running?'⏸':'▶';$('clockState').textContent=game.running?'CLOCK RUNNING':'CLOCK STOPPED';$('clockBtn').title=game.running?'Clock running — tap to stop':'Clock stopped — tap to start';$('clockBtn').className=game.running?'r':'g';
@@ -2583,4 +2621,63 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener('pagehide',()=>{if(game&&game.running){try{tick();save()}catch(e){console.error(e)}}});
 render();
 if(caughtUp)alertMsg(`⏱ Clock caught up ${(c=>`${Math.floor(c/60)}:${String(c%60).padStart(2,'0')}`)(Math.round(caughtUp.cr))} while the app was closed`+(caughtUp.end?` — end of ${pLbl(caughtUp.per)}`:'')+(caughtUp.long?' (closed over 30 min — check the clock)':''));
-</script></body></html>
+</script><div id="afUpdate" role="status" aria-live="polite"><button type="button" id="afUpdGo">⬆ Update ready — tap to reload<small id="afUpdVer"></small></button><button type="button" id="afUpdX" aria-label="Not now">✕</button></div>
+<script>/* v1.0.5-exp7 app-feel: bottom tabs, resume, haptics, sheets, update banner. Experimental only; storage wo_bb_exp_; no service worker. */
+(function(){'use strict';
+var KEY='wo_bb_exp_lastTab',TABS=['game','roster','box','past','pbp','season'],D=document,B=D.body;
+var AF=window.AF={key:KEY};
+function store(){try{return window.LS||window.localStorage}catch(e){return null}}
+function g(){try{return typeof game!=='undefined'?game:null}catch(e){return null}}
+function running(){var x=g();return!!(x&&x.running)}
+var RM=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):null;
+AF.reduced=function(){return!!(RM&&RM.matches)};
+function btns(){return D.querySelectorAll('#tabBar button')}
+AF.tab=function(){var b=D.querySelector('#tabBar button.on');return b?b.dataset.tab:'game'};
+// 1+4+6: after the app's own tab handler runs: aria, remember the tab, short slide/fade
+Array.prototype.forEach.call(btns(),function(b){b.addEventListener('click',function(){var t=b.dataset.tab;
+ Array.prototype.forEach.call(btns(),function(x){x.setAttribute('aria-selected',String(x===b))});
+ try{var s=store();if(s)s.setItem(KEY,t)}catch(e){}
+ if(AF._quiet||AF.reduced())return;var sec=D.getElementById(t);if(!sec)return;
+ sec.classList.remove('tabIn');void sec.offsetWidth;sec.classList.add('tabIn');clearTimeout(sec._afT);sec._afT=setTimeout(function(){sec.classList.remove('tabIn')},260)})});
+AF.go=function(t,quiet){var b=D.querySelector('#tabBar button[data-tab="'+t+'"]');if(!b)return;AF._quiet=!!quiet;try{b.click()}finally{AF._quiet=false}};
+// 6: resume — live game always lands on Game; otherwise the last screen
+AF.resume=function(){var t='game';if(!g()){try{var s=store(),v=s&&s.getItem(KEY);if(v&&TABS.indexOf(v)>=0)t=v}catch(e){}}if(t!==AF.tab())AF.go(t,true);return t};
+// live-chrome state -> compact tab bar + update-banner deferral
+AF.sync=function(active,run){B.classList.toggle('afGame',!!active);B.classList.toggle('afRun',!!run);if(AF.tickUpd)AF.tickUpd()};
+// 3: haptics on stat taps (Android); iOS has no navigator.vibrate, so this is silent there
+var HAP='#statBtns,#oppBtns,#fgModal,#ftModal,#rebModal,#stlModal,#astModal,#zoneModal,#tmoModal,#toModal,#moreModal,#clockBtn,#undo';
+AF.buzz=function(ms){try{if(typeof navigator.vibrate==='function')return navigator.vibrate(ms||12)}catch(e){}return false};
+D.addEventListener('click',function(e){var t=e.target;if(!t||!t.closest)return;var hit=t.closest(HAP);if(!hit)return;if(t.closest('button')||(hit.id==='zoneModal'&&t.closest('svg')))AF.buzz(12)},true);
+D.addEventListener('touchstart',function(){},{passive:true}); // lets iOS Safari apply :active (press scale)
+// 4: popups slide up as bottom sheets (look only; content/behavior unchanged)
+['tmoModal','ftModal','fgModal','ynModal','nsModal','ltoModal','toModal','stlModal','rebModal','astModal','repModal','htModal','zoneModal','pcModal','rimpModal','moreModal'].forEach(function(id){var m=D.getElementById(id);if(m)m.classList.add('afSheet')});
+(function(){var m=D.getElementById('stModal');if(m)m.classList.add('afFade')})();
+// 7: update banner. Compares the served page's APP_VERSION with the running one; never shows while the clock runs.
+var U=AF.upd={ready:false,ver:null,sw:null,last:0,busy:false,dismissed:false};
+function nums(v){return String(v||'').replace(/^v/i,'').split(/[^0-9]+/).filter(function(x){return x!==''}).map(Number)}
+AF.newer=function(a,b){var x=nums(a),y=nums(b),n=Math.max(x.length,y.length);for(var i=0;i<n;i++){var p=x[i]||0,q=y[i]||0;if(p!==q)return p>q}return false};
+var el=D.getElementById('afUpdate');
+AF.tickUpd=function(){var show=U.ready&&!U.dismissed&&!running();if(el)el.classList.toggle('show',show);var v=D.getElementById('afUpdVer');if(v)v.textContent=U.ver?('New version '+U.ver+' (running '+APP_VERSION+')'):'';return show};
+AF.check=function(force){
+ if(U.busy||U.ready)return Promise.resolve(U.ready);
+ if(!/^https?:$/.test(location.protocol)||navigator.onLine===false||typeof fetch!=='function')return Promise.resolve(false);
+ var now=Date.now();if(!force&&now-U.last<60000)return Promise.resolve(false);U.last=now;U.busy=true;
+ var url=location.href.split('#')[0].split('?')[0]+'?v='+now;
+ return fetch(url,{cache:'no-store'}).then(function(r){return r&&r.ok?r.text():''}).then(function(t){var m=/APP_VERSION='([^']+)'/.exec(t||'');
+  if(m&&AF.newer(m[1],APP_VERSION)){U.ready=true;U.ver=m[1];AF.tickUpd()}return U.ready}).catch(function(){return false}).then(function(v){U.busy=false;return v})};
+AF.apply=function(){if(running())return false;try{if(typeof save==='function'&&g())save()}catch(e){}
+ var w=U.sw;if(w&&navigator.serviceWorker){var done=false,go=function(){if(!done){done=true;location.reload()}};navigator.serviceWorker.addEventListener('controllerchange',go);try{w.postMessage({type:'SKIP_WAITING'})}catch(e){go()}setTimeout(go,3000);return true}
+ location.reload();return true};
+// Future production hook (inert here: experimental never registers a service worker). Call AF.watchSW(registration) after register().
+AF.watchSW=function(reg){if(!reg||!navigator.serviceWorker)return;var offer=function(w){U.sw=w;U.ready=true;U.ver=U.ver||'';AF.tickUpd()};
+ if(reg.waiting&&navigator.serviceWorker.controller)offer(reg.waiting);
+ if(reg.addEventListener)reg.addEventListener('updatefound',function(){var n=reg.installing;if(n)n.addEventListener('statechange',function(){if(n.state==='installed'&&navigator.serviceWorker.controller)offer(n)})})};
+D.getElementById('afUpdGo').addEventListener('click',function(){AF.apply()});
+D.getElementById('afUpdX').addEventListener('click',function(){U.dismissed=true;AF.tickUpd()});
+setInterval(AF.tickUpd,1000);
+D.addEventListener('visibilitychange',function(){if(D.visibilityState==='visible'){U.dismissed=false;AF.check()}});
+window.addEventListener('online',function(){AF.check(true)});
+// launch: land on the right screen under the splash (so it is there when the splash fades), then check for an update once the splash is gone
+var x=g();AF.sync(!!x,running());AF.resume();
+setTimeout(function(){AF.check(true)},window.__AF_CHECK_DELAY!=null?window.__AF_CHECK_DELAY:5000);
+})();</script></body></html>
