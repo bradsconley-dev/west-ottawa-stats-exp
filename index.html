@@ -883,7 +883,7 @@ const STATS=[['2PT Make','fg2m','g'],['2PT Miss','fg2x','r'],['3PT Make','fg3m',
 const load=(k,d)=>{try{return JSON.parse(LS.getItem(k))??d}catch(e){return d}};
 const BOOL_SET=['askAst','askZone','req5','ftStop','foulPause','askReb'];
 function normSettings(o){o=o&&typeof o==='object'&&!Array.isArray(o)?o:{};if(!(o.qLen>0))o.qLen=480;if(!(o.otLen>0))o.otLen=240;BOOL_SET.forEach(k=>{const v=o[k];o[k]=!(v===false||v==='false'||v===0||v==='0'||v==='off')});return o}
-const APP_VERSION='v1.0.5-exp15',APP_BUILD=APP_VERSION+' · 2026-11-18 · scrimmage-format';
+const APP_VERSION='v1.0.5-exp16',APP_BUILD=APP_VERSION+' · 2026-11-18 · season-opp';
 // ---- v2.2 teams: Varsity / JV / Freshman. Each team has its own storage slot: wo_bb_exp_roster_<id>, wo_bb_exp_game_<id>, wo_bb_exp_past_<id>, wo_bb_exp_settings_<id>, wo_bb_exp_keeper_<id>;
 // wo_bb_exp_team = last selected team. Migration (once, idempotent): the old unsuffixed v2.1 keys are COPIED to the Varsity slot and verified; the old keys are left untouched as a backup and never written again.
 const TEAMS=[['varsity','Varsity'],['jv','JV'],['freshman','Freshman']],TEAM_IDS=TEAMS.map(t=>t[0]),TEAM_KEYS=['wo_bb_exp_roster','wo_bb_exp_game','wo_bb_exp_past','wo_bb_exp_settings','wo_bb_exp_keeper'],TEAM_SEL='wo_bb_exp_team',TEAM_MIG='wo_bb_exp_teams_migrated';
@@ -2374,13 +2374,13 @@ function oppSeasonRows(avg){const{G,c,o,all}=oppSeason(),n=G.length,f=v=>!n?'—
  const rows=[['Games tracked',String(n),String(n)],['Points'+(avg?' / game':''),f(c.pts),!c.optsN?'—':avg?(c.opts/c.optsN).toFixed(1):String(c.opts)],
   ['FG',ma(c.fgm,c.fga),ma(o.fgm,o.fga)],['FG%',pct1(c.fgm,c.fga),pct1(o.fgm,o.fga)],['3PT',ma(c.tpm,c.tpa),ma(o.tpm,o.tpa)],['3P%',pct1(c.tpm,c.tpa),pct1(o.tpm,o.tpa)],
   ['FT',ma(c.ftm,c.fta),ma(o.ftm,o.fta)],['FT%',pct1(c.ftm,c.fta),pct1(o.ftm,o.fta)],['Rebounds',f(c.oreb+c.dreb),f(o.oreb+o.dreb)],['Off Reb',f(c.oreb),f(o.oreb)],['Def Reb',f(c.dreb),f(o.dreb)],['Turnovers',f(c.to),f(o.to)]];
- {const FG=past.filter(oppFoulTracked),m=FG.length,cf=FG.reduce((a,g)=>a+totals(g).pf,0),of=FG.reduce((a,g)=>a+oppFoulsIn(g,()=>true),0),ff=v=>!m?'—':avg?(v/m).toFixed(1):String(v);
+ {const FG=officialGames().filter(oppFoulTracked),m=FG.length,cf=FG.reduce((a,g)=>a+totals(g).pf,0),of=FG.reduce((a,g)=>a+oppFoulsIn(g,()=>true),0),ff=v=>!m?'—':avg?(v/m).toFixed(1):String(v);
   rows.push(['Fouls'+(m&&m<n?` (${m} game${m===1?'':'s'})`:''),ff(cf),ff(of)])}
- [['Assists',oppAstTracked,'ast','oppast'],['Steals',oppStlTracked,'stl','oppstl']].forEach(([lbl,tr,ck,ok])=>{const GG=past.filter(tr),m=GG.length,cv=GG.reduce((a,g)=>a+totals(g)[ck],0),ov=GG.reduce((a,g)=>a+oppCount(g,ok),0),ff=v=>!m?'—':avg?(v/m).toFixed(1):String(v);
+ [['Assists',oppAstTracked,'ast','oppast'],['Steals',oppStlTracked,'stl','oppstl']].forEach(([lbl,tr,ck,ok])=>{const GG=officialGames().filter(tr),m=GG.length,cv=GG.reduce((a,g)=>a+totals(g)[ck],0),ov=GG.reduce((a,g)=>a+oppCount(g,ok),0),ff=v=>!m?'—':avg?(v/m).toFixed(1):String(v);
   rows.push([lbl+(m&&m<n?` (${m} game${m===1?'':'s'})`:''),ff(cv),ff(ov)])});
  return{rows,n,all}}
 function renderOppSeason(){const el=$('oppSeason');if(!el)return;if(!past.length){el.innerHTML='<p>No saved games yet.</p>';return}const avg=sView==='avg',{rows,n,all}=oppSeasonRows(avg);
- el.innerHTML=`<div class="wrap"><table class="oppS"><tr><th>${avg?'Per game':'Totals'}</th><th>West Ottawa</th><th>Opponents</th></tr>${rows.map(r=>`<tr><td class="nm">${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</table></div><p class="oppNote">${n?`From ${n} of ${all} game${all===1?'':'s'} recorded with opponent tracking`:'No games with opponent tracking yet'}${n<all?` — ${all-n} older game${all-n===1?'':'s'} without opponent detail ${all-n===1?'is':'are'} left out (shown as —, not 0)`:''}. Opponent turnovers include West Ottawa steals.</p>`}
+ el.innerHTML=`<div class="wrap"><table class="oppS"><tr><th>${avg?'Per game':'Totals'}</th><th>West Ottawa</th><th>Opponents</th></tr>${rows.map(r=>`<tr><td class="nm">${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</table></div><p class="oppNote">${n?`From ${n} of ${all} game${all===1?'':'s'} recorded with opponent tracking`:all?'No games with opponent tracking yet':'No regular-season games yet'}${n<all?` — ${all-n} older game${all-n===1?'':'s'} without opponent detail ${all-n===1?'is':'are'} left out (shown as —, not 0)`:''}. ${(sc=>sc?`Scrimmages are not included (${sc} left out, same as the season record). `:'')(past.filter(isScrim).length)}Opponent turnovers include West Ottawa steals.</p>`}
 function renderSeason(){renderSeasonChart();renderOppSeason();const{S,rows,team}=seasonRows(),G=officialGames(),sc=past.filter(isScrim).length,n=G.length;
  $('record').innerHTML=`Record: ${S.w}-${S.l}${S.tie?'-'+S.tie:''} · Games: ${n} · Points allowed: ${S.pa} (${S.pag?(S.pa/S.pag).toFixed(1):'-'}/game)${S.pag<n?` · ${n-S.pag} game(s) missing opp. score`:''}${sc?' · (scrimmages not counted)':''}`;
  $('viewTot').classList.toggle('on',sView==='tot');$('viewAvg').classList.toggle('on',sView==='avg');
