@@ -896,7 +896,7 @@ const STATS=[['2PT Make','fg2m','g'],['2PT Miss','fg2x','r'],['3PT Make','fg3m',
 const load=(k,d)=>{try{return JSON.parse(LS.getItem(k))??d}catch(e){return d}};
 const BOOL_SET=['askAst','askZone','req5','ftStop','foulPause','askReb'];
 function normSettings(o){o=o&&typeof o==='object'&&!Array.isArray(o)?o:{};if(!(o.qLen>0))o.qLen=480;if(!(o.otLen>0))o.otLen=240;BOOL_SET.forEach(k=>{const v=o[k];o[k]=!(v===false||v==='false'||v===0||v==='0'||v==='off')});return o}
-const APP_VERSION='v1.0.5-exp17',APP_BUILD=APP_VERSION+' · 2026-11-18 · alpha-subs';
+const APP_VERSION='v1.0.5-exp18',APP_BUILD=APP_VERSION+' · 2026-11-18 · out-label';
 // ---- v2.2 teams: Varsity / JV / Freshman. Each team has its own storage slot: wo_bb_exp_roster_<id>, wo_bb_exp_game_<id>, wo_bb_exp_past_<id>, wo_bb_exp_settings_<id>, wo_bb_exp_keeper_<id>;
 // wo_bb_exp_team = last selected team. Migration (once, idempotent): the old unsuffixed v2.1 keys are COPIED to the Varsity slot and verified; the old keys are left untouched as a backup and never written again.
 const TEAMS=[['varsity','Varsity'],['jv','JV'],['freshman','Freshman']],TEAM_IDS=TEAMS.map(t=>t[0]),TEAM_KEYS=['wo_bb_exp_roster','wo_bb_exp_game','wo_bb_exp_past','wo_bb_exp_settings','wo_bb_exp_keeper'],TEAM_SEL='wo_bb_exp_team',TEAM_MIG='wo_bb_exp_teams_migrated';
@@ -1861,8 +1861,8 @@ function subsHint(S,court,outOnly){const no=S.outSel.length,ni=S.inSel.length,fi
  if(!no&&!ni)t='tap players to pick';else if(subsOk(S,court))t=`ready — ${Math.max(no,ni)} sub${Math.max(no,ni)>1?'s':''}`+(fin<5?` · ${fin} on court`:'');
  else if(no>ni)t=`pick ${no-ni} more going in`+(outOnly?' (or use “Take … out without a sub”)':'');else t=`pick ${ni-no} more coming out`;
  return `Out ${no} · In ${ni} — ${t}`}
-function subsPmeta(p,extra){const fs=game?foulState(p,game.period):'',pos=String(p.pos||'').trim(),pf=p.s&&p.s.pf||0,fl=(pf===1?'1 foul':pf+' fouls')+(fs==='out'?' OUT':'');
- const bits=[pos?esc(pos):'',fl].filter(Boolean);if(extra)bits.push(esc(extra));
+function subsPmeta(p,extra){const fs=game?foulState(p,game.period):'',pos=String(p.pos||'').trim(),pf=p.s&&p.s.pf||0,fl=(pf===1?'1 foul':pf+' fouls')+(fs==='out'?' · fouled out':''); /* out-label: "5 fouls · fouled out" */
+ const bits=[pos&&fs!=='out'?esc(pos):'',fl].filter(Boolean);if(extra&&!(fs==='out'&&extra==='fouled out'))bits.push(esc(extra));
  return{cls:fs?' '+fs:'',fb:fs?`<span class="fb">${fs==='out'?'OUT':pf+'F'}</span>`:'',meta:bits.length?`<small>${bits.join(' · ')}</small>`:''}}
 function subsPickHtml(S,on,bench,o){subsSel(S);const pn=(a,id)=>{const i=a.indexOf(id);return i<0?'':`<i class="pkn">${i+1}</i>`},ok=subsOk(S,on.length),no=S.outSel.length,ni=S.inSel.length;
  const extra=o.outOnly&&no>ni?S.outSel.slice(ni).map(id=>game.players.find(p=>p.id===id)).filter(Boolean):[];
